@@ -1,1 +1,1 @@
-"""Tests for integration_blueprint integration."""
+"""The tests for Modbus platforms."""
