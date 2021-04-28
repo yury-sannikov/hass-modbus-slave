@@ -9,6 +9,12 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.components.cover import (
     DEVICE_CLASSES_SCHEMA as COVER_DEVICE_CLASSES_SCHEMA,
 )
+from homeassistant.components.modbus import (
+    MODBUS_SCHEMA,
+    SERIAL_SCHEMA,
+    SERVICE_WRITE_COIL_SCHEMA,
+    SERVICE_WRITE_REGISTER_SCHEMA,
+)
 from homeassistant.components.sensor import (
     DEVICE_CLASSES_SCHEMA as SENSOR_DEVICE_CLASSES_SCHEMA,
 )
@@ -252,36 +258,14 @@ BINARY_SENSOR_SCHEMA = BASE_COMPONENT_SCHEMA.extend(
     }
 )
 
-MODBUS_SCHEMA = vol.Schema(
+MODBUS_SLAVE_SCHEMA = MODBUS_SCHEMA.extend(
     {
-        vol.Optional(CONF_NAME, default=DEFAULT_HUB): cv.string,
-        vol.Optional(CONF_TIMEOUT, default=3): cv.socket_timeout,
-        vol.Optional(CONF_DELAY, default=0): cv.positive_int,
-        vol.Optional(CONF_BINARY_SENSORS): vol.All(
-            cv.ensure_list, [BINARY_SENSOR_SCHEMA]
-        ),
-        vol.Optional(CONF_CLIMATES): vol.All(cv.ensure_list, [CLIMATE_SCHEMA]),
-        vol.Optional(CONF_COVERS): vol.All(cv.ensure_list, [COVERS_SCHEMA]),
-        vol.Optional(CONF_SENSORS): vol.All(cv.ensure_list, [SENSOR_SCHEMA]),
-        vol.Optional(CONF_SWITCHES): vol.All(cv.ensure_list, [SWITCH_SCHEMA]),
         vol.Optional(CONF_BIT_SENSORS): vol.All(cv.ensure_list, [BIT_SENSOR_SCHEMA]),
         vol.Optional(CONF_BIT_SWITCHES): vol.All(cv.ensure_list, [BIT_SWITCH_SCHEMA]),
     }
 )
 
-SERIAL_SCHEMA = MODBUS_SCHEMA.extend(
-    {
-        vol.Required(CONF_TYPE): "serial",
-        vol.Required(CONF_BAUDRATE): cv.positive_int,
-        vol.Required(CONF_BYTESIZE): vol.Any(5, 6, 7, 8),
-        vol.Required(CONF_METHOD): vol.Any("rtu", "ascii"),
-        vol.Required(CONF_PORT): cv.string,
-        vol.Required(CONF_PARITY): vol.Any("E", "O", "N"),
-        vol.Required(CONF_STOPBITS): vol.Any(1, 2),
-    }
-)
-
-ETHERNET_SCHEMA = MODBUS_SCHEMA.extend(
+ETHERNET_SCHEMA = MODBUS_SLAVE_SCHEMA.extend(
     {
         vol.Required(CONF_HOST): cv.string,
         vol.Required(CONF_PORT): cv.port,
@@ -301,31 +285,22 @@ CONFIG_SCHEMA = vol.Schema(
     extra=vol.ALLOW_EXTRA,
 )
 
-SERVICE_WRITE_REGISTER_SCHEMA = vol.Schema(
-    {
-        vol.Optional(ATTR_HUB, default=DEFAULT_HUB): cv.string,
-        vol.Required(ATTR_UNIT): cv.positive_int,
-        vol.Required(ATTR_ADDRESS): cv.positive_int,
-        vol.Required(ATTR_VALUE): vol.Any(
-            cv.positive_int, vol.All(cv.ensure_list, [cv.positive_int])
-        ),
-    }
-)
-
-SERVICE_WRITE_COIL_SCHEMA = vol.Schema(
-    {
-        vol.Optional(ATTR_HUB, default=DEFAULT_HUB): cv.string,
-        vol.Required(ATTR_UNIT): cv.positive_int,
-        vol.Required(ATTR_ADDRESS): cv.positive_int,
-        vol.Required(ATTR_STATE): vol.Any(
-            cv.boolean, vol.All(cv.ensure_list, [cv.boolean])
-        ),
-    }
-)
-
 
 def setup(hass, config):
     """Set up Modbus component."""
     return modbus_setup(
         hass, config, SERVICE_WRITE_REGISTER_SCHEMA, SERVICE_WRITE_COIL_SCHEMA
     )
+
+
+
+# 2021-04-28 10:45:37 DEBUG (SyncWorker_7) [custom_components.modbus_slave.modbus] Modbus Error: [Connection] Failed to connect[ModbusTcpClient(192.168.5.222:2020)]
+# 2021-04-28 10:45:37 ERROR (MainThread) [homeassistant] Error doing job: Future exception was never retrieved
+# Traceback (most recent call last):
+#   File "/usr/local/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+#     result = self.fn(*self.args, **self.kwargs)
+#   File "/config/custom_components/modbus_slave/bit_sensor.py", line 194, in <lambda>
+#     self.hass, lambda arg: self._update(), self._scan_interval
+#   File "/config/custom_components/modbus_slave/bit_sensor.py", line 220, in _update
+#     self._value = bool(result.registers[register_index] & register_bit_mask)
+# AttributeError: 'NoneType' object has no attribute 'registers'

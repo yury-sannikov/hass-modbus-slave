@@ -180,7 +180,7 @@ async def async_setup_platform(
                 entry[CONF_INPUT_TYPE],
                 entry.get(CONF_UNIT_OF_MEASUREMENT),
                 entry[CONF_COUNT],
-                entry[CONF_REVERSE_ORDER],
+                entry.get(CONF_REVERSE_ORDER, False),
                 entry[CONF_SCALE],
                 entry[CONF_OFFSET],
                 structure,

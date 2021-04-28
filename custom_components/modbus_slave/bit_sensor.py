@@ -210,7 +210,7 @@ class ModbusBitSensor(ModbusBitSensorBase):
             self._available = False
             self.schedule_update_ha_state()
             return
-        if isinstance(result, (ModbusException, ExceptionResponse)):
+        if isinstance(result, (ModbusException, ExceptionResponse)) or result is None:
             self._available = False
             self.schedule_update_ha_state()
             return

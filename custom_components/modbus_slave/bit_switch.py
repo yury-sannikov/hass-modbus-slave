@@ -117,7 +117,7 @@ class ModbusBaseSwitch(SwitchEntity, RestoreEntity, ABC):
             self._available = False
             return
 
-        if isinstance(result, (ModbusException, ExceptionResponse)):
+        if isinstance(result, (ModbusException, ExceptionResponse)) or result is None:
             self._available = False
             return
 

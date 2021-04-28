@@ -3,7 +3,109 @@ default_config:
 logger:
   default: info
   logs:
-    custom_components.integration_blueprint: debug
+    custom_components.modbus_slave: debug
 
-# If you need to debug uncommment the line below (doc: https://www.home-assistant.io/integrations/debugpy/)
+modbus_slave:
+  - name: powermain
+    type: tcp
+    host: 192.168.5.222
+    port: 2020
+    sensors:
+      - name: pwrmain_input_status
+        slave: 16
+        address: 512
+        input_type: holding
+    bit_switches:
+      - name: pwrmain_shut_off_secondary_usp_load
+        slave: 16
+        address: 516
+        command_bit_number: 0
+      - name: pwrmain_master_off
+        slave: 16
+        address: 516
+        command_bit_number: 1
+      - name: pwrmain_invertor_load_off
+        slave: 16
+        address: 516
+        command_bit_number: 2
+      - name: pwrmain_shut_off_ext_ups_load
+        slave: 16
+        address: 516
+        command_bit_number: 3
+      - name: pwrmain_shut_off_proprity1
+        slave: 16
+        address: 516
+        command_bit_number: 4
+      - name: pwrmain_ac_from_invertor
+        slave: 16
+        address: 516
+        command_bit_number: 5
+    bit_sensors:
+      - name: pwrmain_om_310_connection_lost
+        slave: 16
+        address: 514
+        bit_number: 0
+      - name: pwrmain_main_feed_under_over_voltage
+        slave: 16
+        address: 514
+        bit_number: 1
+      - name: pwrmain_controller_fault_watchdog_took_over
+        slave: 16
+        address: 514
+        bit_number: 2
+      - name: pwrmain_phase_order_control_disabled
+        slave: 16
+        address: 514
+        bit_number: 3
+      - name: pwrmain_main_feed_2_phases_lost
+        slave: 16
+        address: 514
+        bit_number: 4
+      - name: pwrmain_main_feed_1_phase_lost
+        slave: 16
+        address: 514
+        bit_number: 5
+      - name: pwrmain_main_feed_phase_order_error
+        slave: 16
+        address: 514
+        bit_number: 6
+      - name: pwrmain_watchdog_failure
+        slave: 16
+        address: 514
+        bit_number: 7
+      - name: pwrmain_bus_a_no_power
+        slave: 16
+        address: 514
+        bit_number: 8
+      - name: pwrmain_bus_an_no_power
+        slave: 16
+        address: 514
+        bit_number: 9
+      - name: pwrmain_emergency_feed_outage
+        slave: 16
+        address: 514
+        bit_number: 10
+      - name: pwrmain_reserve_feed_outage
+        slave: 16
+        address: 514
+        bit_number: 11
+  # - name: sheo
+  #   type: tcpserver
+  #   host: 0.0.0.0
+  #   port: 5020
+  #   bit_switches:
+  #     - name: sheo_disable_bypass
+  #       slave: 77
+  #       address: 3
+  #       command_bit_number: 5
+  #       status_bit_number: 5
+  #   sensors:
+  #     - name: sheo_counter
+  #       slave: 77
+  #       address: 2
+  #       data_type: uint
+
+
+
+# If you need to debug uncomment the line below (doc: https://www.home-assistant.io/integrations/debugpy/)
 # debugpy:
